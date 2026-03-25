@@ -31,7 +31,7 @@ const series = [
     <div class="uitest-card">
       <ElderlyEmploymentYoYStructureChart
         :chart_config="chart_config"
-        :activeChart="activeChart"
+        :active-chart="activeChart"
         :series="series"
         :map_config="null"
         :map_filter="null"

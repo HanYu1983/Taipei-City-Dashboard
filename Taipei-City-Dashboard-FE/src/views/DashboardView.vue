@@ -15,6 +15,8 @@ import router from "../router";
 import { useContentStore } from "../store/contentStore";
 import { useDialogStore } from "../store/dialogStore";
 import { useAuthStore } from "../store/authStore";
+import { useRoute } from "vue-router";
+import { watch } from "vue";
 
 import MoreInfo from "../components/dialogs/MoreInfo.vue";
 import ReportIssue from "../components/dialogs/ReportIssue.vue";
@@ -22,6 +24,68 @@ import ReportIssue from "../components/dialogs/ReportIssue.vue";
 const contentStore = useContentStore();
 const dialogStore = useDialogStore();
 const authStore = useAuthStore();
+const route = useRoute();
+
+const TEST_INJECT_COMPONENT_ID = "test-elderly-employment-yoy-structure";
+
+function isTestInjectedMode() {
+	return route.query.test === "elderly_employment_yoy_structure";
+}
+
+function buildInjectedElderlyEmploymentComponent(city) {
+	return {
+		id: TEST_INJECT_COMPONENT_ID,
+		index: TEST_INJECT_COMPONENT_ID,
+		city,
+		name: "高齡就業人口年增結構",
+		icon: "bug_report",
+		source: "測試資料",
+		time_from: "static",
+		time_to: "static",
+		short_desc: "高齡就業人口年增結構（測試）",
+		chart_config: {
+			types: ["ElderlyEmploymentYoYStructureChart"],
+			color: ["#2E86AB", "#F6AE2D", "#C3423F", "#4B9E5A"],
+			unit: "%",
+			categories: ["2019", "2020", "2021", "2022", "2023"],
+		},
+		chart_data: [
+			{ name: "55-59", data: [18, 19, 17, 16, 15] },
+			{ name: "60-64", data: [34, 32, 33, 31, 30] },
+			{ name: "65-69", data: [28, 29, 30, 31, 33] },
+			{ name: "70+", data: [20, 20, 20, 22, 22] },
+		],
+		map_config: null,
+		map_filter: null,
+	};
+}
+
+function ensureInjectedTestComponent() {
+	if (!isTestInjectedMode()) return;
+	// Wait until dashboard name is resolved (after API)
+	if (!contentStore.currentDashboard?.name) return;
+
+	const components = contentStore.currentDashboard?.components;
+	if (!Array.isArray(components)) return;
+
+	if (components.some((c) => c?.id === TEST_INJECT_COMPONENT_ID)) return;
+
+	const city =
+		contentStore.currentDashboard?.city ||
+		(route.query.city ? String(route.query.city) : "taipei");
+
+	components.push(buildInjectedElderlyEmploymentComponent(city));
+}
+
+watch(
+	() => contentStore.loading,
+	(loading) => {
+		if (!loading) {
+			ensureInjectedTestComponent();
+		}
+	},
+	{ immediate: true }
+);
 
 function handleOpenSettings() {
 	contentStore.editDashboard = JSON.parse(
@@ -86,7 +150,7 @@ function handleMoreInfo(item) {
       :select-btn-disabled="contentStore.cityManager.getSelectList(contentStore.currentDashboard?.city).length === 1"
       :select-btn-list="contentStore.cityManager.getSelectList(contentStore.currentDashboard?.city)"
       :city-tag="contentStore.cityManager.getTagList(contentStore.currentDashboard?.city)"
-      :favorite-btn="authStore.token ? true : false"
+      :favorite-btn="item?.id !== TEST_INJECT_COMPONENT_ID && authStore.token ? true : false"
       :is-favorite="contentStore.favorites?.components.includes(item.id)"
       @favorite="
         (id) => {
@@ -139,12 +203,14 @@ function handleMoreInfo(item) {
         : contentStore.cityManager.getTagList(item.city)
       "
       :delete-btn="
-        contentStore.personalDashboards
-          .map((item) => item.index)
-          .includes(contentStore.currentDashboard.index)
+        item?.id !== TEST_INJECT_COMPONENT_ID &&
+          contentStore.personalDashboards
+            .map((item) => item.index)
+            .includes(contentStore.currentDashboard.index)
       "
       :favorite-btn="
-        authStore.token &&
+        item?.id !== TEST_INJECT_COMPONENT_ID &&
+          authStore.token &&
           contentStore.currentDashboard.icon !== 'favorite'
       "
       :is-favorite="contentStore.favorites?.components.includes(item.id)"

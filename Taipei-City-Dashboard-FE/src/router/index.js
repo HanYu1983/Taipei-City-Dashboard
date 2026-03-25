@@ -133,7 +133,7 @@ router.beforeEach((to) => {
 				"callback",
 				"embed",
 				"mapview",
-					"ui-test",
+				"ui-test",
 			].includes(
 				to.name
 			)
