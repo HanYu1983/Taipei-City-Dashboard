@@ -1,7 +1,7 @@
 <!-- Developed by Taipei Urban Intelligence Center 2023-2024-->
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useContentStore } from "../../../store/contentStore";
 import { useDialogStore } from "../../../store/dialogStore";
 import { useMapStore } from "../../../store/mapStore";
@@ -173,12 +173,12 @@ onMounted(() => {
         >
           <SideBarTab
             v-if="city === 'taipei'"
+            :key="'test'"
             icon="bug_report"
             title="測試用儀表板"
             :index="'test'"
             :city="'taipei'"
             :expanded="isExpanded"
-            :key="'test'"
           />
           <SideBarTab
             v-for="item in contentStore.getDashboardsByCity(city)"
