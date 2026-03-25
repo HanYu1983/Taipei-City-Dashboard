@@ -40,11 +40,6 @@ const routes = [
 		component: MapView,
 	},
 	{
-		path: "/test-dashboard",
-		name: "test-dashboard",
-		component: () => import("../views/TestDashboardView.vue"),
-	},
-	{
 		path: "/component",
 		name: "component",
 		component: ComponentView,
@@ -132,7 +127,6 @@ router.beforeEach((to) => {
 				"callback",
 				"embed",
 				"mapview",
-				"test-dashboard",
 			].includes(
 				to.name
 			)
