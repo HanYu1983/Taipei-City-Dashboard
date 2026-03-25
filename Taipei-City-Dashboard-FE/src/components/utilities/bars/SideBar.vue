@@ -2,7 +2,6 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
 import { useContentStore } from "../../../store/contentStore";
 import { useDialogStore } from "../../../store/dialogStore";
 import { useMapStore } from "../../../store/mapStore";
@@ -14,15 +13,6 @@ const contentStore = useContentStore();
 const dialogStore = useDialogStore();
 const mapStore = useMapStore();
 const authStore = useAuthStore();
-const route = useRoute();
-
-const isUiTestActive = computed(() => {
-	// "test" mode is represented as a /dashboard query parameter
-	return (
-		route.name === "dashboard" &&
-		route.query.test === "elderly_employment_yoy_structure"
-	);
-});
 
 // The expanded state is also stored in localstorage to retain the setting after refresh
 const isExpanded = ref(true);
@@ -163,26 +153,6 @@ onMounted(() => {
         </div>
       </transition>
     </template>
-    <router-link
-      :to="{
-        name: 'dashboard',
-        query: {
-          index: 'ltc_care_tpe',
-          city: 'taipei',
-          test: 'elderly_employment_yoy_structure',
-        },
-      }"
-      :class="{
-        sidebartest: true,
-        'sidebartest-active': isUiTestActive,
-      }"
-    >
-      <span :title="!isExpanded ? '測試用儀表板' : ''">bug_report</span>
-      <h3 v-if="isExpanded">
-        測試用儀表板
-      </h3>
-    </router-link>
-
     <h1 @click="toggleCollapse(contentStore.cityManager.activeCities)">
       {{ isExpanded ? `公共儀表板` : `公共` }}
     </h1>
@@ -198,9 +168,18 @@ onMounted(() => {
         <div
           v-if="
             !collapsedStates[city] &&
-              contentStore.getDashboardsByCity(city)?.length > 0
+              (contentStore.getDashboardsByCity(city)?.length > 0 || city === 'taipei')
           "
         >
+          <SideBarTab
+            v-if="city === 'taipei'"
+            icon="bug_report"
+            title="測試用儀表板"
+            :index="'test'"
+            :city="'taipei'"
+            :expanded="isExpanded"
+            :key="'test'"
+          />
           <SideBarTab
             v-for="item in contentStore.getDashboardsByCity(city)"
             :key="item.index"

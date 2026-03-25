@@ -29,7 +29,10 @@ const route = useRoute();
 const TEST_INJECT_COMPONENT_ID = "test-elderly-employment-yoy-structure";
 
 function isTestInjectedMode() {
-	return route.query.test === "elderly_employment_yoy_structure";
+	const cityQuery = Array.isArray(route.query.city)
+		? route.query.city[0]
+		: route.query.city;
+	return route.query.index === "test" && cityQuery === "taipei";
 }
 
 function buildInjectedElderlyEmploymentComponent(city) {

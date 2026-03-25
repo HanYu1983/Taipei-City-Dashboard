@@ -174,7 +174,7 @@ router.beforeEach((to) => {
 });
 
 // Handles content related tasks (gets content for each route)
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
 	const contentStore = useContentStore();
 	const mapStore = useMapStore();
 	// Pass in route info to contentStore if the path starts with /dashboard or /mapview
@@ -182,6 +182,74 @@ router.beforeEach((to) => {
 		to.path.toLowerCase() === "/dashboard" ||
 		to.path.toLowerCase() === "/mapview"
 	) {
+		// Frontend-only "test dashboard" mode:
+		// Use /dashboard?index=test&city=taipei without calling /dashboard/test APIs.
+		if (
+			to.path.toLowerCase() === "/dashboard" &&
+			to.query.index === "test" &&
+			to.query.city === "taipei"
+		) {
+			// Ensure sidebar still has dashboards/cities lists.
+			// onlyDashboard=true means it will NOT fetch current dashboard components.
+			try {
+				await contentStore.setDashboards(true);
+			} catch {
+				// If dashboard list fails, we still want the frontend-only
+				// test dashboard to render.
+			}
+
+			// Inject a standalone component list for the test dashboard.
+			const TEST_INJECT_COMPONENT_ID = "test-elderly-employment-yoy-structure";
+			const injectedComponent = {
+				id: TEST_INJECT_COMPONENT_ID,
+				index: TEST_INJECT_COMPONENT_ID,
+				city: "taipei",
+				name: "高齡就業人口年增結構",
+				icon: "bug_report",
+				source: "測試資料",
+				time_from: "static",
+				time_to: "static",
+				short_desc: "高齡就業人口年增結構（測試）",
+				chart_config: {
+					types: ["ElderlyEmploymentYoYStructureChart"],
+					color: ["#2E86AB", "#F6AE2D", "#C3423F", "#4B9E5A"],
+					unit: "%",
+					categories: ["2019", "2020", "2021", "2022", "2023"],
+				},
+				chart_data: [
+					{ name: "55-59", data: [18, 19, 17, 16, 15] },
+					{ name: "60-64", data: [34, 32, 33, 31, 30] },
+					{ name: "65-69", data: [28, 29, 30, 31, 33] },
+					{ name: "70+", data: [20, 20, 20, 22, 22] },
+				],
+				map_config: null,
+				map_filter: null,
+			};
+
+			contentStore.currentDashboard = {
+				mode: "/dashboard",
+				index: "test",
+				name: "測試用儀表板",
+				components: [injectedComponent],
+				icon: "bug_report",
+				city: "taipei",
+			};
+
+			contentStore.currentDashboardExcluded = {
+				components: [],
+			};
+
+			contentStore.cityDashboard = {
+				components: [injectedComponent],
+			};
+
+			contentStore.loading = false;
+			contentStore.error = false;
+
+			mapStore.clearEntireMap();
+			return;
+		}
+
 		contentStore.clearEditDashboard();
 		contentStore.setRouteParams(to.path, to.query.index, to.query.city);
 	} else if (
