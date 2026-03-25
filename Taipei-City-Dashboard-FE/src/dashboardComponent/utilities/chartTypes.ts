@@ -7,6 +7,7 @@ export const chartTypes: chartType = {
 	BarChart: "橫向長條圖", // V
 	ColumnChart: "縱向長條圖", // V
 	BarPercentChart: "長條圖(%)", // V
+	ElderlyEmploymentYoYStructureChart: "高齡就業人口年增結構", // V
 	TreemapChart: "矩形圖", // V
 	DistrictChart: "行政區圖", // V
 	MetroChart: "捷運行駛圖", // V

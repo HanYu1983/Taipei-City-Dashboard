@@ -28,6 +28,7 @@ import BarChartWithGoal from "./components/BarChartWithGoal.vue";
 import IconPercentChart from "./components/IconPercentChart.vue";
 import IndicatorChart from "./components/IndicatorChart.vue";
 import TextUnitChart from "./components/TextUnitChart.vue";
+import ElderlyEmploymentYoYStructureChart from "./components/ElderlyEmploymentYoYStructureChart.vue";
 
 import MapLegendSvg from "./assets/chart/MapLegend.svg";
 import DistrictChartSvg from "./assets/chart/DistrictChart.svg";
@@ -208,6 +209,9 @@ function returnChartComponent(name, svg) {
 		return svg ? TreemapChartSvg : TreemapChart;
 	case "BarPercentChart":
 		return svg ? BarPercentChartSvg : BarPercentChart;
+	case "ElderlyEmploymentYoYStructureChart":
+		// Reuse existing bar chart SVG for preview mode.
+		return svg ? ColumnChartSvg : ElderlyEmploymentYoYStructureChart;
 	case "GuageChart":
 		return svg ? GuageChartSvg : GuageChart;
 	case "RadarChart":
