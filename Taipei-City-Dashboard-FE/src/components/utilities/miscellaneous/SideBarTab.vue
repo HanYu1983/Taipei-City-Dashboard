@@ -22,10 +22,20 @@ const authStore = useAuthStore();
 
 const tabLink = computed(() => {
 	const isAdminPath = authStore.currentPath === "admin";
-	const cityParam = props.city ? `${isAdminPath ? "?" : "&"}city=${props.city}` : "";
+	const cityQuery = props.city ? `&city=${props.city}` : "";
+	const adminCityQuery = props.city ? `?city=${props.city}` : "";
+
+	// For non-admin mode, sidebar should always point to a valid dashboard route.
+	// If we are currently on `/ui-test`, `route.path` would be `/ui-test` and would generate
+	// wrong urls like `/ui-test?index=...`. So we base the target path on currentPath.
+	const targetPath =
+		!isAdminPath && authStore.currentPath === "mapview"
+			? "/mapview"
+			: "/dashboard";
+
 	return isAdminPath
-		? `/admin/${props.index}${cityParam}`
-		: `${route.path}?index=${props.index}${cityParam}`;
+		? `/admin/${props.index}${adminCityQuery}`
+		: `${targetPath}?index=${props.index}${cityQuery}`;
 });
 
 const linkActiveOrNot = computed(() => {

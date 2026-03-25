@@ -18,6 +18,7 @@ import MapView from "../views/MapView.vue";
 import ComponentView from "../views/ComponentView.vue";
 import ComponentInfoView from "../views/ComponentInfoView.vue";
 import EmbedView from "../views/EmbedView.vue";
+import UITestDashboardView from "../views/UITestDashboardView.vue";
 
 const routes = [
 	{
@@ -38,6 +39,11 @@ const routes = [
 		path: "/mapview",
 		name: "mapview",
 		component: MapView,
+	},
+	{
+		path: "/ui-test",
+		name: "ui-test",
+		component: UITestDashboardView,
 	},
 	{
 		path: "/component",
@@ -127,6 +133,7 @@ router.beforeEach((to) => {
 				"callback",
 				"embed",
 				"mapview",
+					"ui-test",
 			].includes(
 				to.name
 			)

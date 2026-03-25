@@ -226,7 +226,8 @@ onBeforeUnmount(() => {
     <div
       v-if="
         authStore.currentPath === 'mapview' ||
-          authStore.currentPath === 'dashboard'
+          authStore.currentPath === 'dashboard' ||
+          authStore.currentPath === 'ui-test'
       "
       class="app-content"
     >

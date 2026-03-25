@@ -1,7 +1,7 @@
 <!-- Developed by Taipei Urban Intelligence Center 2023-2024-->
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useContentStore } from "../../../store/contentStore";
 import { useDialogStore } from "../../../store/dialogStore";
 import { useMapStore } from "../../../store/mapStore";
@@ -13,6 +13,8 @@ const contentStore = useContentStore();
 const dialogStore = useDialogStore();
 const mapStore = useMapStore();
 const authStore = useAuthStore();
+
+const isUiTestActive = computed(() => authStore.currentPath === "ui-test");
 
 // The expanded state is also stored in localstorage to retain the setting after refresh
 const isExpanded = ref(true);
@@ -153,6 +155,17 @@ onMounted(() => {
         </div>
       </transition>
     </template>
+    <router-link
+      :to="{ name: 'ui-test' }"
+      :class="{
+        sidebartest: true,
+        'sidebartest-active': isUiTestActive,
+      }"
+    >
+      <span :title="!isExpanded ? '測試用儀表板' : ''">bug_report</span>
+      <h3 v-if="isExpanded">測試用儀表板</h3>
+    </router-link>
+
     <h1 @click="toggleCollapse(contentStore.cityManager.activeCities)">
       {{ isExpanded ? `公共儀表板` : `公共` }}
     </h1>
@@ -310,6 +323,45 @@ onMounted(() => {
 	.collapse-enter-active,
 	.collapse-leave-active {
 		transition: opacity 0.2s ease, transform 0.2s ease;
+	}
+}
+
+.sidebartest {
+	max-height: var(--font-xl);
+	display: flex;
+	align-items: center;
+	margin: var(--font-s) 0;
+	border-left: solid 4px transparent;
+	border-radius: 0 5px 5px 0;
+	transition: background-color 0.2s;
+	white-space: nowrap;
+	text-wrap: nowrap;
+
+	&:hover {
+		background-color: var(--color-component-background);
+	}
+
+	span {
+		min-width: var(--font-l);
+		margin-left: var(--font-s);
+		font-family: var(--font-icon);
+		font-size: calc(var(--font-m) * var(--font-to-icon));
+	}
+
+	h3 {
+		margin-left: var(--font-s);
+		font-size: var(--font-m);
+		font-weight: 400;
+	}
+}
+
+.sidebartest-active {
+	border-left-color: var(--color-highlight);
+	background-color: var(--color-component-background);
+
+	span,
+	h3 {
+		color: var(--color-highlight);
 	}
 }
 </style>

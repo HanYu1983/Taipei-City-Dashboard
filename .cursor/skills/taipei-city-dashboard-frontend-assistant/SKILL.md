@@ -140,6 +140,31 @@ description: 專案專用前端工程師模式。用於當使用者要求「新�
 - `src/dashboardComponent/DashboardComponent.vue`：組件渲染器（chart 元件分派）＋ emit 互動事件
 - `src/dashboardComponent/utilities/chartTypes.ts`：chart type 顯示名稱對照表
 
+## 錯誤處理日誌（必讀，持續更新）
+每次遇到前端行為錯誤（導頁錯誤、狀態錯亂、地圖互動失效、dialog 沒出現等），都要把以下資訊寫進來：症狀 → 根因 → 修正 → 驗證 → 預防規則。
+
+### 2026-03-25 SideBar 導向錯誤：從 `/ui-test` 點其他儀表板都變回 `/ui-test`
+- 症狀
+  - 先進入 `/ui-test`，再從左側點 `長照關懷`、`圖資資訊` 等儀表板，頁面會被導回 `/ui-test`（或等價地生成錯誤 URL）。
+- 根因
+  - `src/components/utilities/miscellaneous/SideBarTab.vue` 的 `tabLink` 非 admin 情況下會用當前頁面的 `route.path` 當 base path：`route.path?index=...`。
+  - 當目前路徑是 `/ui-test` 時，base path 變成 `/ui-test`，就會產生 `/ui-test?index=...`，導致整體體感像「一直回到測試頁」。
+- 修正
+  - 在 `src/components/utilities/miscellaneous/SideBarTab.vue` 改成「非 admin 時依目前 `authStore.currentPath` 決定目標路徑」：
+    - 只有在目前是 `mapview` 才導到 `/mapview`
+    - 其它（包含 `ui-test`）一律導到 `/dashboard`
+  - 同時修正 admin query 組裝，避免多餘 `?` 的 URL 變形。
+- 影響範圍
+  - 左側儀表板清單的非 admin 連結生成邏輯（所有像 `/ui-test` 這種非 `/dashboard` / `/mapview` route 的起點）。
+- 驗證方式（必做）
+  - 使用 `browserMCP`：
+    - 先進 `http://localhost:8080/dashboard?index=ltc_care_tpe&city=taipei`
+    - 點 `測試用儀表板` → 再點 `長照關懷` → 確認 URL 正確回 `/dashboard?index=ltc_care_tpe&city=taipei`
+    - 再從 `/ui-test` 點 `圖資資訊` → 確認 URL 正確回 `/dashboard?index=map-layers-taipei&city=taipei`
+- 預防規則（寫在技能裡，未來遇到類似錯就直接套）
+  - Sidebar/導航的非 admin link 組裝不要用 `route.path` 當 base path（route 會隨目前頁變動）。
+  - 導頁應以「目標模式」為準（本專案：`dashboard` vs `mapview`），並用 `authStore.currentPath` 決策。
+
 ## 你回覆給使用者的格式（建議）
 當你要新增/修改 UI 時，回覆請包含以下三段（簡短即可）：
 1. `修改重點`：你判斷需求屬於哪一類檔案層級（頁面/組件/dialog/map/styles）
