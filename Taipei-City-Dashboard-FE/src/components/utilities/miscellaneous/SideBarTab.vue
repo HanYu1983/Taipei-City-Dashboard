@@ -15,12 +15,16 @@ const props = defineProps({
 	title: { type: String },
 	index: { type: String },
 	city: { type: String },
+	to: { type: String }, // optional: allows linking to non-dashboard pages (e.g. test page)
 	expanded: { type: Boolean },
 });
 
 const authStore = useAuthStore();
 
 const tabLink = computed(() => {
+	// If `to` is provided, ignore dashboard index/city logic.
+	if (props.to) return props.to;
+
 	const isAdminPath = authStore.currentPath === "admin";
 	const cityParam = props.city ? `${isAdminPath ? "?" : "&"}city=${props.city}` : "";
 	return isAdminPath
@@ -29,6 +33,8 @@ const tabLink = computed(() => {
 });
 
 const linkActiveOrNot = computed(() => {
+	if (props.to) return route.path === props.to;
+
 	const isAdminPath = authStore.currentPath === "admin";
 	const isPathMatch = isAdminPath
 		? route.path === `/admin/${props.index}`

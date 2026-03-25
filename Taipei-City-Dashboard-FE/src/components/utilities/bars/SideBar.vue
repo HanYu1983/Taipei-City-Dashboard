@@ -29,6 +29,11 @@ function initializeCollapsedStates() {
 			collapsedStates.value[city] = false;
 		}
 	});
+
+	// Test dashboard group (not backed by cityManager.activeCities)
+	if (!("test" in collapsedStates.value)) {
+		collapsedStates.value.test = false;
+	}
 }
 
 function handleOpenAddDashboard() {
@@ -156,6 +161,21 @@ onMounted(() => {
     <h1 @click="toggleCollapse(contentStore.cityManager.activeCities)">
       {{ isExpanded ? `公共儀表板` : `公共` }}
     </h1>
+
+    <h2 @click="toggleCollapse('test')">
+      {{ isExpanded ? `測試儀表板 ` : `測試` }}
+    </h2>
+    <transition name="collapse">
+      <div v-if="!collapsedStates.test">
+        <SideBarTab
+          icon="bug_report"
+          title="測試儀表板"
+          :to="'/test-dashboard'"
+          :expanded="isExpanded"
+        />
+      </div>
+    </transition>
+
     <template
       v-for="city in contentStore.cityManager.activeCities"
       :key="city"
